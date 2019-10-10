@@ -14,6 +14,11 @@ type TypeTest5 = TypeTest0 | TypeTest1;
 type TypeTest6 = Array<number>;
 type TypeTest7 = Array<TypeTest5>;
 
+interface TestInterface1 {
+  a: 1;
+  b: "1";
+}
+
 const ConstTest1 = null;
 const ConstTest2 = undefined;
 const ConstTest3 = 1;

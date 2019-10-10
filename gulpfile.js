@@ -10,7 +10,7 @@ const index = cb => {
 };
 
 function defaultTask(cb) {
-  watch(["index.js", "lib/**/*.js"], index);
+  watch(["index.js", "lib/**/*.js", "lib/**/*.ejs"], index);
 
   index();
   cb();
