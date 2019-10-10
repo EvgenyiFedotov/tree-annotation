@@ -1,14 +1,31 @@
 const recast = require("recast");
-const { readFileSync, writeFileSync, unlinkSync } = require("fs");
+const { readFileSync, writeFileSync } = require("fs");
 
-const { parseNode } = require("./parse");
+const buildReadme = cb => {
+  const src = "./test/index.ts";
+  const file = readFileSync(src, "utf8");
 
-const src = "./src/index.ts";
-const program = readFileSync(src, "utf8");
+  const fileTree = recast.parse(file, {
+    parser: require("recast/parsers/typescript")
+  });
 
-const tsAst = recast.parse(program, {
-  parser: require("recast/parsers/typescript")
-});
+  buildContent(fileTree);
 
-const res = parseNode(tsAst);
-writeFileSync("tree.json", JSON.stringify(res, null, 2));
+  // writeFileSync("readme.md", buildContent(fileTree));
+  if (cb) cb();
+};
+
+const buildContent = fileTree => {
+  const bodyByTypes = fileTree.program.body.reduce(...byType());
+  const { TSTypeAliasDeclaration, VariableDeclaration } = bodyByTypes;
+
+  if (TSTypeAliasDeclaration) {
+    console.log("🎉  Types builded");
+  }
+
+  if (VariableDeclaration) {
+    console.log("🎉  Variables builded");
+  }
+};
+
+buildReadme();
