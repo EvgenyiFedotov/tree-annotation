@@ -13,6 +13,7 @@
     "babylon": "^7.0.0-beta.47",
     "chalk-pipe": "^2.0.0",
     "gulp": "^4.0.2",
+    "prettier": "^1.18.2",
     "recast": "^0.18.3"
   }
 }

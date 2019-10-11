@@ -68,3 +68,4 @@ let LetTest2 = 2;
 let LetTest3: number = 3;
 let LetTest4: string | number = "asd";
 LetTest4 = 1;
+let LetTest5: { a: number; b: string } = { a: 1, b: "c" };

@@ -35,7 +35,7 @@ const treeFormatting = async fileTree => {
     return memo;
   }, {});
 
-  console.log(Object.keys(bodyTypesByIds.TSInterfaceDeclaration));
+  console.log();
 
   const allNodesbyId = {
     ...bodyTypesByIds.TSTypeAliasDeclaration,
