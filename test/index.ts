@@ -58,6 +58,8 @@ const ConstTest11: TestInterface1 = {
     i2: "asd"
   }
 };
+const ConstTest12: number = 1,
+  ConstTest13: string = "test";
 
 /**
  * Variables let
