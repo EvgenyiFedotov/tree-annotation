@@ -38,11 +38,10 @@ const treeFormatting = async fileTree => {
     return memo;
   }, {});
 
-  console.log();
-
   const allNodesbyId = {
     ...bodyTypesByIds.TSTypeAliasDeclaration,
-    ...bodyTypesByIds.TSInterfaceDeclaration
+    ...bodyTypesByIds.TSInterfaceDeclaration,
+    ...bodyTypesByIds.ClassDeclaration
   };
 
   const getBlockNodes = getBlock(allNodesbyId);

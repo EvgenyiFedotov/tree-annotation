@@ -1,9 +1,15 @@
 class ClassTest1 {}
 class ClassTest2 {
-  static a = 1;
-  protected b = 2;
-  private c = 3;
-  // private d: Map<string, string>;
+  static prop1 = 1;
+  protected prop2 = 2;
+  private prop3 = 3;
+  prop4 = "123";
+  prop5 = { a: 123, b: "123" };
+  private prop6: Map<string, string>;
+  private prop7: Map<string, ClassTest1>;
+  prop8: ClassTest1;
+  static prop9: ClassTest1 = new ClassTest1();
+  prop10 = new ClassTest1();
 }
 class ClassTest21 {
   arrowHandler1 = (): string => {
@@ -39,6 +45,11 @@ class ClassTest21 {
   arrowHandler11 = (a: string) => {
     return undefined;
   };
+  arrowHandler12 = () => {
+    console.log("12");
+  };
+  arrowHandler13 = ({ b: string, c: number }) => {};
+  arrowHandler14 = ({ b: string, c: number }, t = () => {}) => {};
 }
 class ClassTest3 {
   constructor() {}
