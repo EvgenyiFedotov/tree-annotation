@@ -3,7 +3,7 @@ const { readFileSync, writeFileSync } = require("fs");
 const chalkpipe = require("chalk-pipe");
 
 const { getNodesbyTypes, getNodesByIds } = require("./lib/file-tree");
-const { header, types, combine, variables, interfaces } = require("./lib/md");
+const md = require("./lib/md");
 
 const buildReadme = cb => {
   const src = "./test/index.ts";
@@ -15,7 +15,7 @@ const buildReadme = cb => {
 
   treeFormatting(parseResult).then(res => {
     // console.log(chalkpipe("yellow")(res));
-    writeFileSync("readme.md", res);
+    writeFileSync("./test/index.md", res);
   });
 
   if (cb) cb();
@@ -42,11 +42,12 @@ const treeFormatting = async fileTree => {
     ...bodyTypesByIds.TSInterfaceDeclaration
   };
 
-  return combine(
-    header("File name"),
-    ...types(allNodesbyId)(bodyTypesByIds.TSTypeAliasDeclaration),
-    ...interfaces(allNodesbyId)(bodyTypesByIds.TSInterfaceDeclaration),
-    ...variables(allNodesbyId)(bodyTypesByIds.VariableDeclaration)
+  return md.combine(
+    md.header("File name"),
+    ...md.functions(allNodesbyId)(bodyTypesByIds.FunctionDeclaration),
+    ...md.types(allNodesbyId)(bodyTypesByIds.TSTypeAliasDeclaration),
+    ...md.interfaces(allNodesbyId)(bodyTypesByIds.TSInterfaceDeclaration),
+    ...md.variables(allNodesbyId)(bodyTypesByIds.VariableDeclaration)
   );
 };
 

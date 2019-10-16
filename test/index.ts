@@ -71,3 +71,85 @@ let LetTest3: number = 3;
 let LetTest4: string | number = "asd";
 LetTest4 = 1;
 let LetTest5: { a: number; b: string } = { a: 1, b: "c" };
+
+var VarTest1: { a: TypeTest0; c: TypeTest3 } = { a: 1, c: "2" };
+
+function FuncTest1(a: string, b: number, c?: string | number): Promise<string> {
+  return Promise.resolve("");
+}
+function FuncTest2(b): Date {
+  return new Date();
+}
+function FuncTest21(b = ""): Date {
+  return new Date();
+}
+function FuncTest3(): void {}
+function FuncTest4(d: number = 2) {}
+function FuncTest5(
+  d: Date,
+  t2: TypeTest7,
+  t3?: TypeTest3,
+  t4: TypeTest3 = "asd"
+) {}
+function FuncTest6({
+  d,
+  t2,
+  t3,
+  t4 = "asd"
+}: {
+  d: Date;
+  t2: TypeTest7;
+  t3?: TypeTest3;
+  t4?: TypeTest3;
+}) {}
+function FuncTest7(
+  {
+    a,
+    b
+  }: {
+    a: Date;
+    b: TypeTest7;
+  },
+  t: string
+) {}
+function FuncTest8(): Date {
+  return new Date();
+}
+function* FuncTest9() {
+  yield "2222";
+  return true;
+}
+function* FuncTest91(): Iterator<boolean> {
+  yield true;
+}
+async function FuncTest101(): Promise<TypeTest3> {
+  return "ASD";
+}
+async function FuncTest10(b: string, x: number) {
+  console.log(false);
+
+  if (!!b) {
+    if (x) return 100;
+    if (x === 100) {
+      return { a: 100, b: 200 };
+    }
+    if (x > 100) {
+      if (x < 80) {
+        if (x > 70) {
+          return new Promise(res => res(123));
+        }
+      }
+    }
+
+    return "string";
+  }
+
+  return true;
+}
+function FuncTest11() {}
+function FuncTest12() {
+  const a = 1;
+  const b = 2;
+  const c = a + b;
+  console.log(c);
+}
