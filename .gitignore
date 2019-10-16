@@ -3,4 +3,4 @@ index.copy.js
 readme.md
 lib/builders
 lib/md-old
-test/index.md
+test/**/*.md

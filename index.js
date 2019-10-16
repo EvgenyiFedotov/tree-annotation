@@ -1,12 +1,12 @@
 const recast = require("recast");
 const { readFileSync, writeFileSync } = require("fs");
 const chalkpipe = require("chalk-pipe");
+const path = require("path");
 
 const { getNodesbyTypes, getNodesByIds } = require("./lib/file-tree");
 const md = require("./lib/md");
 
-const buildReadme = cb => {
-  const src = "./test/index.ts";
+const buildReadme = src => {
   const file = readFileSync(src, "utf8");
 
   const parseResult = recast.parse(file, {
@@ -14,11 +14,9 @@ const buildReadme = cb => {
   });
 
   treeFormatting(parseResult).then(res => {
-    // console.log(chalkpipe("yellow")(res));
-    writeFileSync("./test/index.md", res);
+    const srcParsed = path.parse(src);
+    writeFileSync(`${srcParsed.dir}/${srcParsed.name}.md`, res);
   });
-
-  if (cb) cb();
 };
 
 const treeFormatting = async fileTree => {
@@ -42,13 +40,19 @@ const treeFormatting = async fileTree => {
     ...bodyTypesByIds.TSInterfaceDeclaration
   };
 
+  const getBlockNodes = getBlock(allNodesbyId);
+
   return md.combine(
     md.header("File name"),
-    ...md.functions(allNodesbyId)(bodyTypesByIds.FunctionDeclaration),
-    ...md.types(allNodesbyId)(bodyTypesByIds.TSTypeAliasDeclaration),
-    ...md.interfaces(allNodesbyId)(bodyTypesByIds.TSInterfaceDeclaration),
-    ...md.variables(allNodesbyId)(bodyTypesByIds.VariableDeclaration)
+    ...getBlockNodes(md.functions, bodyTypesByIds.FunctionDeclaration),
+    ...getBlockNodes(md.types, bodyTypesByIds.TSTypeAliasDeclaration),
+    ...getBlockNodes(md.interfaces, bodyTypesByIds.TSInterfaceDeclaration),
+    ...getBlockNodes(md.variables, bodyTypesByIds.VariableDeclaration)
   );
 };
 
-buildReadme();
+const getBlock = allNodesbyId => (func, nodes) =>
+  nodes ? func(allNodesbyId)(nodes) : [];
+
+buildReadme("./test/index.ts");
+buildReadme("./test/class.ts");
