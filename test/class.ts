@@ -60,3 +60,20 @@ class ClassTest4 {
   protected sendProtected() {}
   private sendPrivate() {}
 }
+class ClassTest5 {
+  method0() {}
+  method1(a, b) {}
+  method2(a: string, b: number): { a: string; b: number } {}
+  method3({ a: number }) {
+    return {
+      a: "123",
+      b: 123
+    };
+  }
+  async method4({ a: number }, { c: string }) {
+    return "123";
+  }
+  *method5(...args: Array<string>) {
+    return 123;
+  }
+}
