@@ -77,3 +77,6 @@ class ClassTest5 {
     return 123;
   }
 }
+class ClassTest6 {
+  constructor(a: string, b: number, c?: { d: string, g?: number }) {}
+}
