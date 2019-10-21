@@ -5,3 +5,4 @@ lib/builders
 lib/md-old
 test/**/*.md
 test/**/*.json
+index copy.js
