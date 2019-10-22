@@ -78,5 +78,5 @@ class ClassTest5 {
   }
 }
 class ClassTest6 {
-  constructor(a: string, b: number, c?: { d: string, g?: number }) {}
+  constructor(a: string, b: number, c?: { d: string; g?: number }) {}
 }

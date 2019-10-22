@@ -24,5 +24,6 @@ const buildReadme = src => {
 const getBlock = allNodesbyId => (func, nodes) =>
   nodes ? func(allNodesbyId)(nodes) : [];
 
-buildReadme("./test/index.ts");
-buildReadme("./test/class.ts");
+// buildReadme("./test/index.ts");
+// buildReadme("./test/class.ts");
+buildReadme("./test/export.ts");
