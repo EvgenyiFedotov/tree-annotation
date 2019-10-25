@@ -59,3 +59,6 @@ function name17() {
   const c = a + b;
   console.log(c);
 }
+function name18(): { a: number; b: string } | null {
+  return { a: 1, b: "2" };
+}
