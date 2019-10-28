@@ -15,3 +15,5 @@ export function ExpFunc3({ a: string, b: number }) {}
 export function ExpFunc4(): Array<string> {
   return [];
 }
+export class ExpClass1 {}
+export class ExpClass2 extends ExpClass1 {}
