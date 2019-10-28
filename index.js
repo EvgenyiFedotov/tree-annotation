@@ -29,4 +29,5 @@ const getBlock = allNodesbyId => (func, nodes) =>
 // buildReadme("./test/functions.ts");
 // buildReadme("./test/class.ts");
 // buildReadme("./test/export.ts");
-buildReadme("./test/import.ts");
+// buildReadme("./test/import.ts");
+buildReadme("./test/namespaces.ts");
