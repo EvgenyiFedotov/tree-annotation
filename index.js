@@ -22,8 +22,9 @@ const getBlock = allNodesbyId => (func, nodes) =>
   nodes ? func(allNodesbyId)(nodes) : [];
 
 // buildReadme("./test/variables.ts");
-buildReadme("./test/types.ts");
+// buildReadme("./test/types.ts");
+buildReadme("./test/interfaces.ts");
+
 // buildReadme("./test/class.ts");
 // buildReadme("./test/export.ts");
-// buildReadme("./test/interfaces.ts");
 // buildReadme("./test/functions.ts");
