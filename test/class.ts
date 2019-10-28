@@ -76,7 +76,12 @@ class ClassTest5 {
   *method5(...args: Array<string>) {
     return 123;
   }
+  method6() {
+    const obj1 = { c: 3, d: 4 };
+    return { ...{ a: 1, b: 2 }, ...obj1 };
+  }
 }
 class ClassTest6 {
   constructor(a: string, b: number, c?: { d: string; g?: number }) {}
 }
+class ClassTest7 extends ClassTest6 {}
