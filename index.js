@@ -2,12 +2,18 @@ const fs = require("fs");
 const path = require("path");
 
 const syntaxNodeScope = require("./lib/syntax-node-scope");
+const nodeParse = require("./lib/syntax-node-scope/node-parse");
 
 const buildReadme = src => {
   console.log(`🛠  Build: ${src}`);
 
   const srcParsed = path.parse(src);
-  const scope = syntaxNodeScope.fileParse({ src });
+  const scope = syntaxNodeScope.fileParse({
+    src,
+    nodeParse: {
+      transform: nodeParse.combine(nodeParse.typeRemove)
+    }
+  });
 
   fs.writeFileSync(
     `${srcParsed.dir}/${srcParsed.name}.json`,
@@ -22,8 +28,8 @@ const getBlock = allNodesbyId => (func, nodes) =>
   nodes ? func(allNodesbyId)(nodes) : [];
 
 buildReadme("./test/variables.ts");
-buildReadme("./test/types.ts");
-buildReadme("./test/interfaces.ts");
+// buildReadme("./test/types.ts");
+// buildReadme("./test/interfaces.ts");
 
 // buildReadme("./test/class.ts");
 // buildReadme("./test/export.ts");
