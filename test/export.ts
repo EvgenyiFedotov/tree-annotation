@@ -17,3 +17,7 @@ export function ExpFunc4(): Array<string> {
 }
 export class ExpClass1 {}
 export class ExpClass2 extends ExpClass1 {}
+export default {
+  a: 1,
+  b: "2"
+};
