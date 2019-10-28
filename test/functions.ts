@@ -43,7 +43,14 @@ async function name15(b: string, x: number) {
         }
       }
     }
+
     if (x > 200) {
+      return 1;
+    } else if (x > 250) {
+      return new Date();
+    }
+
+    if (x > 500) {
       return 1;
     }
 
@@ -61,4 +68,7 @@ function name17() {
 }
 function name18(): { a: number; b: string } | null {
   return { a: 1, b: "2" };
+}
+function name19() {
+  return !!500;
 }
