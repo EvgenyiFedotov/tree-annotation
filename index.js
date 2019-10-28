@@ -23,11 +23,11 @@ const buildReadme = src => {
 const getBlock = allNodesbyId => (func, nodes) =>
   nodes ? func(allNodesbyId)(nodes) : [];
 
-// buildReadme("./test/variables.ts");
+buildReadme("./test/variables.ts");
 // buildReadme("./test/types.ts");
 // buildReadme("./test/interfaces.ts");
 // buildReadme("./test/functions.ts");
 // buildReadme("./test/class.ts");
 // buildReadme("./test/export.ts");
 // buildReadme("./test/import.ts");
-buildReadme("./test/namespaces.ts");
+// buildReadme("./test/namespaces.ts");
