@@ -4,9 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rm -f test/**.md test/**.json && node index.js",
-    "start": "node node_modules/.bin/gulp"
+    "build": "rm -f test/**.md test/**.json && node index.js"
   },
   "author": "",
   "license": "MIT",
@@ -16,7 +14,6 @@
     "recast": "^0.18.3"
   },
   "devDependencies": {
-    "gulp": "^4.0.2",
     "prettier": "^1.18.2"
   }
 }
