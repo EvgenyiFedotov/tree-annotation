@@ -1,13 +1,13 @@
 const fs = require("fs");
 const path = require("path");
 
-const syntaxNodeScope = require("./src");
+const treeAnnotation = require("./dist");
 
 const buildReadme = src => {
   console.log(`🛠  Build: ${src}`);
 
   const srcParsed = path.parse(src);
-  const scope = syntaxNodeScope.fileParse({
+  const scope = treeAnnotation.fileParse({
     src
   });
 
@@ -19,9 +19,6 @@ const buildReadme = src => {
   console.log(`🎉  Builded: ${src}`);
   console.log();
 };
-
-const getBlock = allNodesbyId => (func, nodes) =>
-  nodes ? func(allNodesbyId)(nodes) : [];
 
 buildReadme("./test/variables.ts");
 // buildReadme("./test/types.ts");

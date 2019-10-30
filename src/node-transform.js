@@ -1,17 +1,17 @@
-const chalkPipe = require("chalk-pipe");
+import chalkPipe from "chalk-pipe";
 
-const combine = (...transforms) => (nodeParams, type, node) =>
+export const combine = (...transforms) => (nodeParams, type, node) =>
   transforms.reduce(
     (memo, transform) => transform(memo, type, node),
     nodeParams
   );
 
-const typeRemove = nodeParams => {
+export const typeRemove = nodeParams => {
   delete nodeParams.type;
   return nodeParams;
 };
 
-const nodesFile = (nodeParams, type) => {
+export const nodesFile = (nodeParams, type) => {
   switch (type) {
     case "File":
       return nodeParams.program;
@@ -22,7 +22,7 @@ const nodesFile = (nodeParams, type) => {
   }
 };
 
-const varibaleAddKind = (nodeParams, type, { nodeParent }) => {
+export const varibaleAddKind = (nodeParams, type, { nodeParent }) => {
   switch (type) {
     case "VariableDeclarator":
       nodeParams.kind = nodeParent.kind;
@@ -31,7 +31,7 @@ const varibaleAddKind = (nodeParams, type, { nodeParent }) => {
   return nodeParams;
 };
 
-const createReduceTreeById = () => {
+export const createReduceTreeById = () => {
   const treeById = {};
 
   const nodeParamsAdd = nodeParams => {
@@ -75,9 +75,3 @@ const createReduceTreeById = () => {
     }
   ];
 };
-
-module.exports.combine = combine;
-module.exports.typeRemove = typeRemove;
-module.exports.nodesFile = nodesFile;
-module.exports.varibaleAddKind = varibaleAddKind;
-module.exports.createReduceTreeById = createReduceTreeById;

@@ -1,14 +1,14 @@
-const recast = require("recast");
-const fs = require("fs");
-const chalkPipe = require("chalk-pipe");
+import * as recast from "recast";
+import fs from "fs";
+import chalkPipe from "chalk-pipe";
 
-const nodeTransform = require("./node-transform");
+import * as nodeTransform from "./node-transform";
 
 /**
  * @param {{ src: string, nodeParse: {}} options
  * @return {{}}
  */
-const fileParse = options => {
+export const fileParse = options => {
   const { src } = options;
 
   const file = fs.readFileSync(src, "utf8");
@@ -28,10 +28,10 @@ const fileParse = options => {
   return { tree, treeById };
 };
 
-const nodesParse = (options = {}, nodeParent = null) => (nodes = []) =>
+export const nodesParse = (options = {}, nodeParent = null) => (nodes = []) =>
   nodes.map(nodeParse(options, nodeParent)).filter(Boolean);
 
-const nodeParse = (options = {}, nodeParent = null) => node => {
+export const nodeParse = (options = {}, nodeParent = null) => node => {
   if (!node) return;
 
   const { transform = nodeParams => nodeParams } = options;
@@ -359,7 +359,3 @@ const buildNodeParams = (options = {}, node, nodeParent = null) => (
   }, {});
   return Object.keys(nodeParams).length ? nodeParams : undefined;
 };
-
-module.exports.fileParse = fileParse;
-module.exports.nodesParse = nodesParse;
-module.exports.nodeParse = nodeParse;

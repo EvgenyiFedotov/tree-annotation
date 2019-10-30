@@ -6,3 +6,6 @@ lib/md-old
 test/**/*.md
 test/**/*.json
 index copy.js
+yarn-error.log
+.DS_Store
+dist
