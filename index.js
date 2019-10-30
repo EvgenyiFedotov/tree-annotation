@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const syntaxNodeScope = require("./lib/syntax-node-scope");
+const syntaxNodeScope = require("./src");
 
 const buildReadme = src => {
   console.log(`🛠  Build: ${src}`);
