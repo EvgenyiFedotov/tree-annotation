@@ -17,6 +17,11 @@ export function ExpFunc4(): Array<string> {
 }
 export class ExpClass1 {}
 export class ExpClass2 extends ExpClass1 {}
+class ExpClass3 {}
+export { ExpClass3 };
+const ExpConst5 = 5;
+class ExpClass4 {}
+export { ExpConst5, ExpClass4 };
 export default {
   a: 1,
   b: "2"

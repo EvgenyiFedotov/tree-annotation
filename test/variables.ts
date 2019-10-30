@@ -27,3 +27,4 @@ var nametest17: Date = new Date();
 var nametest18: Map<string, number> = new Map([["id1", 1]]);
 const nametest19: Date = new Date("2019-01-01");
 let nametest20: Date = new Date(2019, 0, 0, 0, 0, 0);
+const nametest21 = nametest20;
