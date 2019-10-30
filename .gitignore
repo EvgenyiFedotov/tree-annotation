@@ -1,0 +1,8 @@
+node_modules
+index.copy.js
+readme.md
+lib/builders
+lib/md-old
+test/**/*.md
+test/**/*.json
+index copy.js
