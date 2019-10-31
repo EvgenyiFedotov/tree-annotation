@@ -23,10 +23,7 @@ export const strParse = value => {
   const [treeById, reduceTreeById] = nodeTransform.createReduceTreeById();
 
   const tree = nodeParse({
-    transform: nodeTransform.combine(
-      nodeTransform.varibaleAddKind,
-      reduceTreeById
-    )
+    transform: nodeTransform.combine(reduceTreeById)
   })(nodeFile);
 
   return { tree, treeById };
@@ -143,7 +140,11 @@ export const nodeParse = (options = {}, nodeParent = null) => node => {
       nodeParams = getNodeParams(["id", "nodeParse"], ["init", "nodeParse"]);
       break;
     case "Identifier":
-      nodeParams = getNodeParams(["name"], ["annotation", "nodeParse"]);
+      nodeParams = getNodeParams(
+        ["name"],
+        ["annotation", "nodeParse"],
+        ["typeAnnotation", "nodeParse"]
+      );
       break;
     case "NumericLiteral":
       nodeParams = { value: node.value, annotation: "number" };
