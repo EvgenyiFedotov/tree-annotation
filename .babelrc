@@ -1,0 +1,9 @@
+{
+  "presets": ["@babel/env"],
+  "plugins": [
+    "babel-plugin-add-module-exports",
+    "@babel/proposal-export-default-from",
+    "@babel/proposal-class-properties"
+  ],
+  "env": {}
+}

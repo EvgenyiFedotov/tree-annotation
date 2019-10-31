@@ -10,9 +10,13 @@ import * as nodeTransform from "./node-transform";
  */
 export const fileParse = options => {
   const { src } = options;
-
   const file = fs.readFileSync(src, "utf8");
-  const nodeFile = recast.parse(file, {
+
+  return strParse(file);
+};
+
+export const strParse = value => {
+  const nodeFile = recast.parse(value, {
     parser: require("recast/parsers/typescript")
   });
 

@@ -20,7 +20,7 @@ const buildReadme = src => {
   console.log();
 };
 
-buildReadme("./test/variables.ts");
+buildReadme("./test/__mocks-ts__/variables.ts");
 // buildReadme("./test/types.ts");
 // buildReadme("./test/interfaces.ts");
 // buildReadme("./test/functions.ts");

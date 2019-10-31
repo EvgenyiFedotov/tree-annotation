@@ -22,7 +22,8 @@ module.exports = {
       profile: true
     }),
     new WebpackShellPlugin({
-      onBuildEnd: ["node index.js"],
+      onBuildStart: ["yarn test"],
+      onBuildEnd: ["yarn build:old"],
       dev: false
     })
   ]
