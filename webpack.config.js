@@ -5,11 +5,13 @@ const WebpackShellPlugin = require("webpack-shell-plugin");
 const Package = require("./package.json");
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: {
+    index: "./src/index.js"
+  },
   output: {
     libraryTarget: "commonjs2",
     path: path.resolve(__dirname, "dist"),
-    filename: "index.js"
+    filename: "[name].js"
   },
   devtool: "sourcemap",
   target: "node",
@@ -22,8 +24,8 @@ module.exports = {
       profile: true
     }),
     new WebpackShellPlugin({
-      onBuildStart: ["yarn test"],
-      onBuildEnd: ["yarn build:old"],
+      // onBuildStart: ["yarn test"],
+      // onBuildEnd: ["yarn build:old"],
       dev: false
     })
   ]
