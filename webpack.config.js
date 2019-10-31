@@ -1,6 +1,7 @@
 const path = require("path");
 const nodeExternals = require("webpack-node-externals");
 const WebpackBar = require("webpackbar");
+const WebpackShellPlugin = require("webpack-shell-plugin");
 const Package = require("./package.json");
 
 module.exports = {
@@ -19,6 +20,10 @@ module.exports = {
     new WebpackBar({
       name: Package.name,
       profile: true
+    }),
+    new WebpackShellPlugin({
+      onBuildEnd: ["node index.js"],
+      dev: false
     })
   ]
 };
