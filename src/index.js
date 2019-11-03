@@ -1,6 +1,6 @@
 import * as recast from "recast";
 import fs from "fs";
-import valueEqual from "value-equal";
+import * as nodeAnnotation from "./node-annotation";
 
 /**
  * @param {{ src: string, nodeParse: {}} options
@@ -13,6 +13,10 @@ export const parseFile = options => {
   return parse(file);
 };
 
+/**
+ * @param {string} value
+ * @param {{ toAreaType?: boolean }} options
+ */
 export const parse = (value, options = {}) => {
   const { parser = require("recast/parsers/typescript") } = options;
   const nodeFile = recast.parse(value, { parser });
@@ -23,36 +27,17 @@ export const parse = (value, options = {}) => {
   return nodesBodyByIds;
 };
 
-const reduceNodeById = (options = {}, nodeParent = null) => (memo, node) => {
-  const result = buildNode(options, nodeParent)(node);
+const reduceNodeById = (options = {}) => (memo, node) => {
+  let result = nodeAnnotation.build(node, options);
 
   if (result) {
+    result = result instanceof Array ? result : [result];
     result.forEach(nodeAnnotation => {
-      memo[nodeAnnotation.id] = nodeAnnotation;
+      if (nodeAnnotation && nodeAnnotation.id) {
+        memo[nodeAnnotation.id] = nodeAnnotation;
+      }
     });
   }
 
   return memo;
-};
-
-export const buildNode = (options = {}, nodeParent = null) => node => {
-  const buildNodeNext = buildNode(options, node);
-
-  switch (node.type) {
-    default:
-      console.log(node.type);
-      break;
-  }
-};
-
-export const getAnnotation = () => node => buildAnnotation(node);
-
-export const buildAnnotation = node => {
-  if (!node) return "unknow";
-
-  switch (node.type) {
-    default:
-      console.log("buildAnnotation", node.type);
-      return "unknow";
-  }
 };
