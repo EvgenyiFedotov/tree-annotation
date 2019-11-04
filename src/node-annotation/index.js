@@ -11,5 +11,5 @@ export const build = (node, options = {}, nodeParent = null) => {
   }
 
   console.log("build annotation", node.type);
-  return "unknow";
+  return undefined;
 };

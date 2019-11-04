@@ -155,3 +155,60 @@ export const TSEnumMember = (node, options = {}) => {
   const init = build(node.initializer, options, node);
   return { type, id, init };
 };
+
+export const VariableDeclaration = (node, options = {}) => {
+  return node.declarations.map(nodeDeclaration => {
+    return build(nodeDeclaration, options, node);
+  });
+};
+
+export const VariableDeclarator = (node, options = {}, nodeParent) => {
+  const type = "variable";
+  const id = node.id.name;
+  const kind = nodeParent.kind;
+  const annotations = {
+    id: build(node.id.typeAnnotation, options, node),
+    init: build(node.init, options, node)
+  };
+  return { type, id, kind, annotations };
+};
+
+export const NewExpression = (node, options = {}) => {
+  const type = "new";
+  const name = node.callee.name;
+  const args = node.arguments.map(nodeArgument => {
+    return build(nodeArgument, options, node);
+  });
+  return { type, name, arguments: args };
+};
+
+export const TSAsExpression = (node, options = {}) => {
+  const type = "as";
+  const expression = build(node.expression, options, node);
+  const annotation = build(node.typeAnnotation, options, node);
+  return { type, expression, annotation };
+};
+
+export const TSParenthesizedType = (node, options = {}, nodeParent) => {
+  return build(node.typeAnnotation, options, nodeParent);
+};
+
+export const TSFunctionType = (node, options = {}) => {
+  const type = "function-type";
+  const typeParameters = build(node.typeParameters, options, node);
+  const typeAnnotation = build(node.typeAnnotation, options, node);
+  const parameters = node.parameters.map(nodeParameter =>
+    build(nodeParameter, options, node)
+  );
+  return { type, typeParameters, typeAnnotation, parameters };
+};
+
+export const TSVoidKeyword = () => {
+  const type = "void";
+  return { type };
+};
+
+// TODO
+export const ArrowFunctionExpression = node => {
+  // console.log([node]);
+};

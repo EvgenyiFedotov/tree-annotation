@@ -407,9 +407,9 @@ describe("parse", () => {
       ],
       [
         `
-          enum testName {
-            prop_1 = 'string_prop_1'
-          }
+        enum testName {
+          prop_1 = 'string_prop_1'
+        }
         `,
         [
           {
@@ -427,6 +427,138 @@ describe("parse", () => {
       expect(resultParse.type).toBe("enum");
       expect(resultParse.id).toBe("testName");
       expect(resultParse.members).toEqual(result);
+    });
+  });
+
+  describe("variable", () => {
+    test.each([
+      [
+        "const testName = 1",
+        "const",
+        {
+          id: undefined,
+          init: { type: "number", value: 1 }
+        }
+      ],
+      [
+        "const testName = '2'",
+        "const",
+        {
+          id: undefined,
+          init: { type: "string", value: "2" }
+        }
+      ],
+      [
+        "let testName = new Date('2019')",
+        "let",
+        {
+          id: undefined,
+          init: {
+            type: "new",
+            name: "Date",
+            arguments: [{ type: "string", value: "2019" }]
+          }
+        }
+      ],
+      [
+        "let testName: string = 'test'",
+        "let",
+        {
+          id: {
+            type: "string",
+            value: undefined
+          },
+          init: {
+            type: "string",
+            value: "test"
+          }
+        }
+      ],
+      [
+        "let testName: string | number = 1",
+        "let",
+        {
+          id: {
+            type: "union",
+            types: [
+              { type: "string", value: undefined },
+              { type: "number", value: undefined }
+            ]
+          },
+          init: {
+            type: "number",
+            value: 1
+          }
+        }
+      ],
+      [
+        "let testName: number = 1 as number",
+        "let",
+        {
+          id: { type: "number", value: undefined },
+          init: {
+            type: "as",
+            expression: { type: "number", value: 1 },
+            annotation: { type: "number", value: undefined }
+          }
+        }
+      ],
+      [
+        "let testName: number = 1 as (number | string)",
+        "let",
+        {
+          id: { type: "number", value: undefined },
+          init: {
+            type: "as",
+            expression: { type: "number", value: 1 },
+            annotation: {
+              type: "union",
+              types: [
+                { type: "number", value: undefined },
+                { type: "string", value: undefined }
+              ]
+            }
+          }
+        }
+      ],
+      [
+        "let testName: <T>(a: string) => void = <T>(): string => {}",
+        "let",
+        {
+          id: {
+            type: "function-type",
+            typeParameters: [
+              {
+                type: "parameter",
+                name: "T",
+                default: undefined,
+                constraint: undefined
+              }
+            ],
+            parameters: [
+              {
+                type: "id",
+                name: "a",
+                annotation: {
+                  type: "string",
+                  value: undefined
+                }
+              }
+            ],
+            typeAnnotation: {
+              type: "void"
+            }
+          },
+          init: undefined
+        }
+      ]
+    ])("%s", (value, kind, result) => {
+      const resultParse = treeAnnotation.parse(value).testName;
+
+      expect(resultParse.type).toBe("variable");
+      expect(resultParse.id).toBe("testName");
+      expect(resultParse.kind).toBe(kind);
+      expect(resultParse.annotations).toEqual(result);
     });
   });
 });
