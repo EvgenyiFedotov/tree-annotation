@@ -139,3 +139,19 @@ export const Identifier = (node, options = {}) => {
   const annotation = build(node.typeAnnotation, options, node);
   return { type, name, annotation };
 };
+
+export const TSEnumDeclaration = (node, options = {}) => {
+  const type = "enum";
+  const id = node.id.name;
+  const members = node.members.map(nodeMember =>
+    build(nodeMember, options, node)
+  );
+  return { type, id, members };
+};
+
+export const TSEnumMember = (node, options = {}) => {
+  const type = "enum-member";
+  const id = node.id.name;
+  const init = build(node.initializer, options, node);
+  return { type, id, init };
+};

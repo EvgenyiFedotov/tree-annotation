@@ -379,4 +379,54 @@ describe("parse", () => {
       expect(resultParse.testName.annotations).toEqual(result);
     });
   });
+
+  describe("enum", () => {
+    test.each([
+      [
+        `
+        enum testName {
+        }
+      `,
+        []
+      ],
+      [
+        `
+        enum testName {
+          prop_1,
+          prop_2
+        }
+      `,
+        [
+          { type: "enum-member", id: "prop_1", init: undefined },
+          {
+            type: "enum-member",
+            id: "prop_2",
+            init: undefined
+          }
+        ]
+      ],
+      [
+        `
+          enum testName {
+            prop_1 = 'string_prop_1'
+          }
+        `,
+        [
+          {
+            type: "enum-member",
+            id: "prop_1",
+            init: {
+              type: "string",
+              value: "string_prop_1"
+            }
+          }
+        ]
+      ]
+    ])("%s", (value, result) => {
+      const resultParse = treeAnnotation.parse(value).testName;
+      expect(resultParse.type).toBe("enum");
+      expect(resultParse.id).toBe("testName");
+      expect(resultParse.members).toEqual(result);
+    });
+  });
 });
