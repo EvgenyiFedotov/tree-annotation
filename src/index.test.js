@@ -113,14 +113,14 @@ describe("parse", () => {
     });
   });
 
-  describe.skip("enum", () => {
+  describe("enum", () => {
     test.each([
       [
         `
         enum testName {
         }
       `,
-        []
+        "{ }"
       ],
       [
         `
@@ -129,14 +129,7 @@ describe("parse", () => {
           prop_2
         }
       `,
-        [
-          { type: "enum-member", id: "prop_1", init: undefined },
-          {
-            type: "enum-member",
-            id: "prop_2",
-            init: undefined
-          }
-        ]
+        "{ prop_1, prop_2 }"
       ],
       [
         `
@@ -144,16 +137,7 @@ describe("parse", () => {
           prop_1 = 'string_prop_1'
         }
         `,
-        [
-          {
-            type: "enum-member",
-            id: "prop_1",
-            init: {
-              type: "string",
-              value: "string_prop_1"
-            }
-          }
-        ]
+        "{ prop_1 = 'string_prop_1' }"
       ]
     ])("%s", (value, result) => {
       const resultParse = treeAnnotation.parse(value).testName;

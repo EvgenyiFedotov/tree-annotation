@@ -93,8 +93,8 @@ export const TSInterfaceDeclaration = (node, options = {}) => {
 
 export const TSInterfaceBody = (node, options = {}, nodeParent = null) => {
   let body = node.body.map(nodeBody => build(nodeBody, options, nodeParent));
-  body = body.length ? `${body.join("; ")};` : "";
-  return `{ ${body} }`;
+  body = body.length ? `${body.join("; ")}; ` : "";
+  return `{ ${body}}`;
 };
 
 export const TSPropertySignature = (node, options = {}) => {
@@ -125,17 +125,17 @@ export const Identifier = (node, options = {}) => {
 export const TSEnumDeclaration = (node, options = {}) => {
   const type = "enum";
   const id = node.id.name;
-  const members = node.members.map(nodeMember =>
+  let members = node.members.map(nodeMember =>
     build(nodeMember, options, node)
   );
+  members = `{ ${members.length ? `${members.join(", ")} ` : ""}}`;
   return { type, id, members };
 };
 
 export const TSEnumMember = (node, options = {}) => {
-  const type = "enum-member";
-  const id = node.id.name;
-  const init = build(node.initializer, options, node);
-  return { type, id, init };
+  const name = node.id.name;
+  const initializer = build(node.initializer, options, node);
+  return initializer ? `${name} = ${initializer}` : name;
 };
 
 export const VariableDeclaration = (node, options = {}) => {
