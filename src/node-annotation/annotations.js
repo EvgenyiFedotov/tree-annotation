@@ -86,39 +86,33 @@ export const TSAnyKeyword = () => {
 export const TSInterfaceDeclaration = (node, options = {}) => {
   const type = "interface";
   const id = node.id.name;
-  const annotations = {
-    parameters: build(node.typeParameters, options, node),
-    body: build(node.body, options, node)
-  };
-  return { type, id, annotations };
+  const typeParameters = build(node.typeParameters, options, node);
+  const body = build(node.body, options, node);
+  return { type, id, typeParameters, body };
 };
 
 export const TSInterfaceBody = (node, options = {}, nodeParent = null) => {
-  return node.body.map(nodeBody => build(nodeBody, options, nodeParent));
+  let body = node.body.map(nodeBody => build(nodeBody, options, nodeParent));
+  body = body.length ? `${body.join("; ")};` : "";
+  return `{ ${body} }`;
 };
 
 export const TSPropertySignature = (node, options = {}) => {
-  const type = "property";
   const key = node.key.name;
-  const computed = node.computed;
   const optional = !!node.optional;
   const annotation = build(node.typeAnnotation, options, node);
-  return { type, key, computed, optional, annotation };
+  return `${key}${optional ? "?" : ""}: ${annotation}`;
 };
 
 export const TSTypeAnnotation = (node, options = {}, nodeParent = null) =>
   build(node.typeAnnotation, options, nodeParent);
 
 export const TSIndexSignature = (node, options = {}) => {
-  const type = "index-signature";
-  const parameters = node.parameters.map(nodeParameter =>
-    build(nodeParameter, options, node)
-  );
-  const annotations = {
-    annotation: build(node.typeAnnotation, options, node),
-    parameters
-  };
-  return { type, annotations };
+  const params = node.parameters
+    .map(nodeParam => `${nodeParam.name}: ${build(nodeParam.typeAnnotation)}`)
+    .join(", ");
+  const typeAnnotation = build(node.typeAnnotation, options, node);
+  return `[${params}]: ${typeAnnotation}`;
 };
 
 export const Identifier = (node, options = {}) => {

@@ -54,10 +54,11 @@ describe("parse", () => {
     });
   });
 
-  describe.skip("interface", () => {
-    test.each([
-      [
-        `
+  describe("interface", () => {
+    describe("body", () => {
+      test.each([
+        [
+          `
         interface testName {
           a: string;
           b: number;
@@ -65,177 +66,50 @@ describe("parse", () => {
           d: Date | Array<string | Date>;
         }
       `,
-        {
-          parameters: undefined,
-          body: [
-            {
-              key: "a",
-              type: "property",
-              annotation: {
-                type: "string",
-                value: undefined
-              },
-              computed: false,
-              optional: false
-            },
-            {
-              key: "b",
-              type: "property",
-              annotation: {
-                type: "number",
-                value: undefined
-              },
-              computed: false,
-              optional: false
-            },
-            {
-              key: "c",
-              type: "property",
-              annotation: {
-                type: "ref",
-                name: "Array",
-                parameters: [{ type: "string", value: undefined }]
-              },
-              computed: false,
-              optional: false
-            },
-            {
-              key: "d",
-              type: "property",
-              annotation: {
-                type: "union",
-                types: [
-                  { type: "ref", name: "Date", parameters: undefined },
-                  {
-                    type: "ref",
-                    name: "Array",
-                    parameters: [
-                      {
-                        type: "union",
-                        types: [
-                          { type: "string", value: undefined },
-                          { type: "ref", name: "Date", parameters: undefined }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              },
-              computed: false,
-              optional: false
-            }
-          ]
+          "{ a: string; b: number; c: Array<string>; d: Date | Array<string | Date>; }"
+        ],
+        [
+          `
+        interface testName {
+          [propName: string]: T;
+          b: Array<K> | S;
         }
-      ],
-      [
-        `
+      `,
+          "{ [propName: string]: T; b: Array<K> | S; }"
+        ],
+        [
+          `
+        interface testName {
+          a?: number;
+        }
+      `,
+          "{ a?: number; }"
+        ]
+      ])("%s", (value, result) => {
+        const resultParse = treeAnnotation.parse(value);
+        expect(resultParse.testName.type).toBe("interface");
+        expect(resultParse.testName.id).toBe("testName");
+        expect(resultParse.testName.body).toEqual(result);
+      });
+    });
+
+    describe("typeParameters", () => {
+      test.each([
+        [
+          `
         interface testName<T, K = string, S extends String> {
           [propName: string]: T;
           b: Array<K> | S;
         }
       `,
-        {
-          parameters: [
-            {
-              type: "parameter",
-              name: "T",
-              default: undefined,
-              constraint: undefined
-            },
-            {
-              type: "parameter",
-              name: "K",
-              default: {
-                type: "string",
-                value: undefined
-              },
-              constraint: undefined
-            },
-            {
-              type: "parameter",
-              name: "S",
-              default: undefined,
-              constraint: {
-                type: "ref",
-                name: "String",
-                parameters: undefined
-              }
-            }
-          ],
-          body: [
-            {
-              type: "index-signature",
-              annotations: {
-                parameters: [
-                  {
-                    type: "id",
-                    name: "propName",
-                    annotation: {
-                      type: "string",
-                      value: undefined
-                    }
-                  }
-                ],
-                annotation: {
-                  type: "ref",
-                  name: "T",
-                  parameters: undefined
-                }
-              }
-            },
-            {
-              type: "property",
-              key: "b",
-              computed: false,
-              optional: false,
-              annotation: {
-                type: "union",
-                types: [
-                  {
-                    type: "ref",
-                    name: "Array",
-                    parameters: [
-                      { type: "ref", name: "K", parameters: undefined }
-                    ]
-                  },
-                  {
-                    type: "ref",
-                    name: "S",
-                    parameters: undefined
-                  }
-                ]
-              }
-            }
-          ]
-        }
-      ],
-      [
-        `
-        interface testName {
-          a?: number;
-        }
-      `,
-        {
-          parameters: undefined,
-          body: [
-            {
-              type: "property",
-              key: "a",
-              computed: false,
-              optional: true,
-              annotation: {
-                type: "number",
-                value: undefined
-              }
-            }
-          ]
-        }
-      ]
-    ])("%s", (value, result) => {
-      const resultParse = treeAnnotation.parse(value);
-      expect(resultParse.testName.type).toBe("interface");
-      expect(resultParse.testName.id).toBe("testName");
-      expect(resultParse.testName.annotations).toEqual(result);
+          "<T, K = string, S extends String>"
+        ]
+      ])("%s", (value, result) => {
+        const resultParse = treeAnnotation.parse(value);
+        expect(resultParse.testName.type).toBe("interface");
+        expect(resultParse.testName.id).toBe("testName");
+        expect(resultParse.testName.typeParameters).toEqual(result);
+      });
     });
   });
 
