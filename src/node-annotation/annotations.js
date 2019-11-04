@@ -1,4 +1,5 @@
 import { build } from ".";
+import * as common from "./common";
 
 export const TSTypeAliasDeclaration = (node, options = {}) => {
   const type = "type";
@@ -74,7 +75,7 @@ export const TSTypeParameter = (node, options = {}) => {
   const name = node.name;
   let constraint = build(node.constraint, options, node);
   constraint = constraint ? ` extends ${constraint}` : "";
-  let def = build(node.default, options, node);
+  let def = build(node.default, options, node) || (constraint ? "" : "any");
   def = def ? ` = ${def}` : "";
   return `${name}${constraint}${def}`;
 };
@@ -118,8 +119,17 @@ export const TSIndexSignature = (node, options = {}) => {
 export const Identifier = (node, options = {}) => {
   const type = "id";
   const name = node.name;
-  const annotation = build(node.typeAnnotation, options, node);
-  return { type, name, annotation };
+  const optional = !!node.optional;
+  const typeAnnotation = build(node.typeAnnotation, options, node) || "any";
+  const result = { type, name, optional, typeAnnotation };
+
+  result.toString = () => {
+    return `${name}${optional ? "?" : ""}${
+      typeAnnotation ? `: ${typeAnnotation}` : ""
+    }`;
+  };
+
+  return result;
 };
 
 export const TSEnumDeclaration = (node, options = {}) => {
@@ -148,49 +158,136 @@ export const VariableDeclarator = (node, options = {}, nodeParent) => {
   const type = "variable";
   const id = node.id.name;
   const kind = nodeParent.kind;
-  const annotations = {
-    id: build(node.id.typeAnnotation, options, node),
-    init: build(node.init, options, node)
-  };
-  return { type, id, kind, annotations };
+  const typeAnnotation = build(node.id.typeAnnotation, options, node);
+  const typeInit = node.init && node.init.type;
+  const init =
+    typeInit === "TSAsExpression"
+      ? build(node.init.expression, options, node)
+      : build(node.init, options, node);
+  const as =
+    typeInit === "TSAsExpression"
+      ? build(node.init.typeAnnotation, options, node)
+      : undefined;
+  return { type, id, kind, typeAnnotation, init, as };
 };
 
-export const NewExpression = (node, options = {}) => {
-  const type = "new";
+export const NewExpression = node => {
   const name = node.callee.name;
-  const args = node.arguments.map(nodeArgument => {
-    return build(nodeArgument, options, node);
-  });
-  return { type, name, arguments: args };
+  const result = { name };
+
+  result.toString = () => {
+    return name;
+  };
+
+  result.toCode = () => {
+    return `new ${name}()`;
+  };
+
+  return result;
 };
 
-export const TSAsExpression = (node, options = {}) => {
-  const type = "as";
-  const expression = build(node.expression, options, node);
-  const annotation = build(node.typeAnnotation, options, node);
-  return { type, expression, annotation };
-};
-
-export const TSParenthesizedType = (node, options = {}, nodeParent) => {
+export const TSParenthesizedType = (node, options = {}, nodeParent = null) => {
   return build(node.typeAnnotation, options, nodeParent);
 };
 
 export const TSFunctionType = (node, options = {}) => {
-  const type = "function-type";
-  const typeParameters = build(node.typeParameters, options, node);
+  let typeParameters = build(node.typeParameters, options, node);
+  typeParameters = typeParameters ? typeParameters : "";
+  let parameters = node.parameters.map(nodeParameter => {
+    return `${nodeParameter.name}: ${build(
+      nodeParameter.typeAnnotation,
+      options,
+      node
+    ) || "any"}`;
+  });
+  parameters = parameters.length ? parameters.join(", ") : "";
   const typeAnnotation = build(node.typeAnnotation, options, node);
-  const parameters = node.parameters.map(nodeParameter =>
-    build(nodeParameter, options, node)
-  );
-  return { type, typeParameters, typeAnnotation, parameters };
+  return `${typeParameters}(${parameters}) => ${typeAnnotation}`;
 };
 
 export const TSVoidKeyword = () => {
-  const type = "void";
-  return { type };
+  return "void";
 };
 
-// TODO
-export const ArrowFunctionExpression = node => {
-  // console.log([node]);
+export const TSTupleType = (node, options = {}) => {
+  const { toAreaType = false } = options;
+
+  let elementTypes = build(node.elementTypes, options, node);
+  let result;
+
+  if (toAreaType) {
+    elementTypes = common.getUnicTypes(elementTypes);
+    result = `Array<${elementTypes.join(" | ")}>`;
+  } else {
+    result = `[${elementTypes.join(", ")}]`;
+  }
+
+  return result;
+};
+
+export const ArrowFunctionExpression = (node, options = {}) => {
+  const params = build(node.params, options, node);
+  const body = ArrowFunctionExpressionReturn(node, options);
+
+  return `(${params.join(", ")}) => ${body}`;
+};
+
+export const ArrowFunctionExpressionReturn = (node, options = {}) => {
+  const asyncc = node.async;
+  const returnType = build(node.returnType, options, node);
+
+  if (returnType) {
+    return asyncc ? `Promise<${returnType}>` : returnType;
+  } else {
+    let body = build(node.body, options);
+    body = body instanceof Array ? body : [body];
+    body = body.join(" | ") || "void";
+    return asyncc ? `Promise<${body}>` : body;
+  }
+};
+
+export const ArrayExpression = (node, options = {}, nodeParent) => {
+  const { toAreaType = false } = options;
+
+  let elements = build(node.elements, options, nodeParent);
+  let result;
+
+  if (toAreaType) {
+    elements = common.getUnicTypes(elements);
+    result = `Array<${elements.join(" | ")}>`;
+  } else {
+    result = `[${elements.join(", ")}]`;
+  }
+
+  return result;
+};
+
+export const BlockStatement = (node, options = {}, nodeParent = null) => {
+  let nodesReturn = build(
+    common.getNodesReturn(node.body),
+    options,
+    nodeParent
+  );
+
+  nodesReturn = common.getUnicTypes(nodesReturn);
+
+  return nodesReturn.join(" | ");
+};
+
+export const ReturnStatement = (node, options = {}, nodeParent = null) => {
+  return build(node.argument, options, nodeParent);
+};
+
+export const AssignmentPattern = (node, options = {}) => {
+  const left = build(node.left, options, node);
+  const right = build(node.right, options, node);
+  const result = { right, left };
+
+  result.toString = () => {
+    const rightArea = build(node.right, { toAreaType: true }, node);
+    const rightCode = right.toCode ? right.toCode() : right;
+    return `${left.name}: ${rightArea} = ${rightCode}`;
+  };
+
+  return result;
 };

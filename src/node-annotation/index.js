@@ -1,18 +1,23 @@
 import * as annotations from "./annotations";
 
 /**
- * @param {Object} node
+ * @param {Object | Array<Object>} value
  * @param {{ toAreaType?: boolean }} options
  * @param {Object | null} [nodeParent]
  */
-export const build = (node, options = {}, nodeParent = null) => {
-  if (!node) return;
+export const build = (value, options = {}, nodeParent = null) => {
+  if (!value) return;
 
-  const builder = annotations[node.type];
-
-  if (builder) {
-    return builder(node, options, nodeParent);
+  if (value instanceof Array) {
+    return value.map(node => build(node, options, nodeParent));
   } else {
-    console.log("build annotation", node.type);
+    const type = value.type;
+    const builder = annotations[type];
+
+    if (builder) {
+      return builder(value, options, nodeParent);
+    } else {
+      console.log("build annotation", type);
+    }
   }
 };

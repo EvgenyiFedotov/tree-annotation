@@ -12,6 +12,12 @@ describe("parse", () => {
         ["type testName = null;", null, null],
         ["type testName = 1;", 1, "number"],
         ["type testName = '2';", "'2'", "string"],
+        ["type testName = [1, 2, 3]", "[1, 2, 3]", "Array<number>"],
+        [
+          "type testName = [1, 2, '3']",
+          "[1, 2, '3']",
+          "Array<number | string>"
+        ],
         ["type testName = 1 | '2';", "1 | '2'", "number | string"],
         ["type testName = any;", "any", "any"],
         ["type testName = string;", "string", "string"],
@@ -40,7 +46,7 @@ describe("parse", () => {
 
     describe("parameters", () => {
       test.each([
-        ["type testName<T> = Array<T>;", "<T>"],
+        ["type testName<T> = Array<T>;", "<T = any>"],
         [
           "type testName<T = any, S extends String = string> = Array<T | S>;",
           "<T = any, S extends String = string>"
@@ -102,7 +108,7 @@ describe("parse", () => {
           b: Array<K> | S;
         }
       `,
-          "<T, K = string, S extends String>"
+          "<T = any, K = string, S extends String>"
         ]
       ])("%s", (value, result) => {
         const resultParse = treeAnnotation.parse(value);
@@ -147,135 +153,176 @@ describe("parse", () => {
     });
   });
 
-  describe.skip("variable", () => {
-    test.each([
-      [
-        "const testName = 1",
-        "const",
-        {
-          id: undefined,
-          init: { type: "number", value: 1 }
-        }
-      ],
-      [
-        "const testName = '2'",
-        "const",
-        {
-          id: undefined,
-          init: { type: "string", value: "2" }
-        }
-      ],
-      [
-        "let testName = new Date('2019')",
-        "let",
-        {
-          id: undefined,
-          init: {
-            type: "new",
-            name: "Date",
-            arguments: [{ type: "string", value: "2019" }]
-          }
-        }
-      ],
-      [
-        "let testName: string = 'test'",
-        "let",
-        {
-          id: {
-            type: "string",
-            value: undefined
-          },
-          init: {
-            type: "string",
-            value: "test"
-          }
-        }
-      ],
-      [
-        "let testName: string | number = 1",
-        "let",
-        {
-          id: {
-            type: "union",
-            types: [
-              { type: "string", value: undefined },
-              { type: "number", value: undefined }
-            ]
-          },
-          init: {
-            type: "number",
-            value: 1
-          }
-        }
-      ],
-      [
-        "let testName: number = 1 as number",
-        "let",
-        {
-          id: { type: "number", value: undefined },
-          init: {
-            type: "as",
-            expression: { type: "number", value: 1 },
-            annotation: { type: "number", value: undefined }
-          }
-        }
-      ],
-      [
-        "let testName: number = 1 as (number | string)",
-        "let",
-        {
-          id: { type: "number", value: undefined },
-          init: {
-            type: "as",
-            expression: { type: "number", value: 1 },
-            annotation: {
-              type: "union",
-              types: [
-                { type: "number", value: undefined },
-                { type: "string", value: undefined }
-              ]
-            }
-          }
-        }
-      ],
-      [
-        "let testName: <T>(a: string) => void = <T>(): string => {}",
-        "let",
-        {
-          id: {
-            type: "function-type",
-            typeParameters: [
-              {
-                type: "parameter",
-                name: "T",
-                default: undefined,
-                constraint: undefined
-              }
-            ],
-            parameters: [
-              {
-                type: "id",
-                name: "a",
-                annotation: {
-                  type: "string",
-                  value: undefined
-                }
-              }
-            ],
-            typeAnnotation: {
-              type: "void"
-            }
-          },
-          init: undefined
-        }
-      ]
-    ])("%s", (value, kind, result) => {
-      const resultParse = treeAnnotation.parse(value).testName;
+  describe("variable", () => {
+    describe.skip("kind", () => {});
+    describe("init", () => {
+      test.each([
+        ["const testName = 1", "1", "number"],
+        ["const testName = '2'", "'2'", "string"],
+        ["let testName = new Date('2019')", "Date", "Date"]
+      ])("%s", (value, result, resultArea) => {
+        let resultParse = treeAnnotation.parse(value).testName;
 
-      expect(resultParse.type).toBe("variable");
-      expect(resultParse.id).toBe("testName");
-      expect(resultParse.kind).toBe(kind);
-      expect(resultParse.annotations).toEqual(result);
+        expect(resultParse.type).toBe("variable");
+        expect(resultParse.id).toBe("testName");
+        expect(resultParse.init.toString()).toEqual(result);
+        expect(resultParse.as).toBe(undefined);
+
+        resultParse = treeAnnotation.parse(value, { toAreaType: true })
+          .testName;
+        expect(resultParse.init.toString()).toBe(resultArea);
+      });
+    });
+    describe("typeAnnotation", () => {
+      test.each([
+        ["let testName: string;", "string"],
+        ["let testName: string | number", "string | number"],
+        ["let testName: Array<string | number>", "Array<string | number>"],
+        ["let testName: () => void", "() => void"],
+        [
+          "let testName: (a: number, b) => string",
+          "(a: number, b: any) => string"
+        ],
+        [
+          "var testName: <T, K = string>(a: T) => K",
+          "<T = any, K = string>(a: T) => K"
+        ]
+      ])("%s", (value, result) => {
+        const resultParse = treeAnnotation.parse(value).testName;
+
+        expect(resultParse.type).toBe("variable");
+        expect(resultParse.id).toBe("testName");
+        expect(resultParse.typeAnnotation).toEqual(result);
+      });
+    });
+    describe("init 'as'", () => {
+      test.each([
+        ["let testName = 1 as number", 1, "number", "number"],
+        [
+          "let testName = 1 as (number | string)",
+          1,
+          "number",
+          "number | string"
+        ]
+      ])("%s", (value, result, resultArea, resultAs) => {
+        let resultParse = treeAnnotation.parse(value).testName;
+
+        expect(resultParse.type).toBe("variable");
+        expect(resultParse.id).toBe("testName");
+        expect(resultParse.init).toEqual(result);
+        expect(resultParse.as).toEqual(resultAs);
+
+        resultParse = treeAnnotation.parse(value, { toAreaType: true })
+          .testName;
+
+        expect(resultParse.init).toEqual(resultArea);
+      });
+    });
+    describe("array function", () => {
+      describe("return", () => {
+        test.each([
+          ["const testName = () => {}", "() => void", "() => void"],
+          ["const testName = () => 1", "() => 1", "() => number"],
+          ["const testName = () => '2'", "() => '2'", "() => string"],
+          [
+            "const testName = () => [1, 2, '3']",
+            "() => [1, 2, '3']",
+            "() => Array<number | string>"
+          ],
+          ["const testName = () => new Date()", "() => Date", "() => Date"],
+          [
+            `
+            const testName = () => {
+              return 1;
+            };
+            `,
+            "() => 1",
+            "() => number"
+          ],
+          [
+            `
+            const testName = () => {
+              if (window) return '2';
+              else return '2';
+              return 1;
+            }
+            `,
+            "() => '2' | 1",
+            "() => string | number"
+          ],
+          [
+            `
+            const testName = () => {
+              if (window) return '2';
+              else return new Date();
+              return 1;
+            }
+            `,
+            "() => '2' | Date | 1",
+            "() => string | Date | number"
+          ],
+          [
+            `
+            const testName = () => {
+              switch (test) {
+                case "1":
+                  return '2';
+                case "2":
+                  return new Date();
+                case "3":
+                  if (window) return new Date();
+                  else return [1, 2, 3];
+              }
+              return 1;
+            }
+            `,
+            "() => '2' | Date | [1, 2, 3] | 1",
+            "() => string | Date | Array<number> | number"
+          ],
+          [
+            `
+            const testName = (): Array<string> => {
+              return 1;
+            }`,
+            "() => Array<string>",
+            "() => Array<string>"
+          ]
+        ])("%s", (value, result, resultArea) => {
+          let resultParse = treeAnnotation.parse(value).testName;
+          expect(resultParse.init.toString()).toBe(result);
+
+          resultParse = treeAnnotation.parse(value, { toAreaType: true })
+            .testName;
+          expect(resultParse.init.toString()).toBe(resultArea);
+        });
+      });
+      describe("params", () => {
+        test.each([
+          ["const testName = (a) => {}", "(a: any) => void"],
+          ["const testName = (a = 1) => {}", "(a: number = 1) => void"],
+          ["const testName = (a: string) => {}", "(a: string) => void"],
+          [
+            "const testName = (a: number, b = new Date()) => {}",
+            "(a: number, b: Date = new Date()) => void"
+          ],
+          [
+            "const testName = (a: number, b?: string) => {}",
+            "(a: number, b?: string) => void"
+          ]
+        ])("%s", (value, result) => {
+          const resultParse = treeAnnotation.parse(value).testName;
+          expect(resultParse.init).toBe(result);
+        });
+      });
+      describe("added options", () => {
+        test.each([["const testName = async () => {}", "() => Promise<void>"]])(
+          "%s",
+          (value, result) => {
+            const resultParse = treeAnnotation.parse(value).testName;
+            expect(resultParse.init).toBe(result);
+          }
+        );
+      });
     });
   });
 });
