@@ -44,3 +44,22 @@ export const getNodesReturn = (nodes = []) => {
   });
   return result;
 };
+
+export const createStack = () => {
+  const stack = [];
+  const add = value => {
+    stack.push(value);
+  };
+  const remove = value => {
+    const index = stack.indexOf(value);
+    if (index !== -1) stack.splice(index);
+  };
+  const reset = () => {
+    stack.splice(0);
+  };
+  return { stack, add, remove, reset };
+};
+
+export const filterUniq = (values = []) => {
+  return [...new Set(values)];
+};
