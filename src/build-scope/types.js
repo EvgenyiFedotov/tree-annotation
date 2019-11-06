@@ -1,14 +1,19 @@
 import { buildScope } from ".";
-import { getNodesReturn } from "../common";
+import { getNodesReturn, createStack, filterUniq } from "../common";
 
-export const createScope = (builder = () => {}, toString = () => "") => {
-  return (node, options = {}) => {
-    let scope = node ? { originalType: node.type } : {};
-    scope = builder({ scope, node, options }) || scope;
-    scope.toString = () => toString({ scope, node, options });
+const currentScopeStack = createStack();
+
+export function createScope(builder = () => {}, toString = () => "") {
+  function Scope(node, options = {}) {
+    const scope = node ? { originalType: node.type } : {};
+    currentScopeStack.add(scope);
+    builder({ scope, node, options });
+    scope.toString = (mode = null) => toString({ scope, node, options, mode });
+    currentScopeStack.remove(scope);
     return Object.freeze(scope);
-  };
-};
+  }
+  return (node, options) => new Scope(node, options);
+}
 
 export const File = createScope(({ scope, node }) => {
   scope.type = "file";
@@ -73,6 +78,9 @@ export const Identifier = createScope(
     scope.name = node.name;
     scope.optional = !!node.optional;
     scope.typeAnnotation = buildScope(node.typeAnnotation);
+
+    const stack = currentScopeStack.stack;
+    console.log(stack[stack.length - 2].originalType, scope.type);
   },
   ({ scope }) => {
     const name = scope.name;
@@ -137,7 +145,14 @@ export const StringLiteral = createScope(
     scope.type = "string";
     scope.value = node.value;
   },
-  ({ scope }) => scope.value
+  ({ scope, mode }) => {
+    switch (mode) {
+      case "type":
+        return scope.type;
+      default:
+        return scope.value;
+    }
+  }
 );
 
 export const TSAsExpression = createScope(
@@ -186,11 +201,14 @@ export const ArrayExpression = createScope(
   ({ scope, node }) => {
     scope.elements = buildScope(node.elements);
   },
-  ({ scope }) => {
-    const elements = scope.elements
-      .map(element => element.toString())
-      .join(", ");
-    return `[${elements}]`;
+  ({ scope, mode }) => {
+    const elements = scope.elements.map(element => element.toString(mode));
+    switch (mode) {
+      case "type":
+        return `Array<${filterUniq(elements).join(" | ")}>`;
+      default:
+        return `[${elements.join(", ")}]`;
+    }
   }
 );
 
@@ -199,7 +217,14 @@ export const NumericLiteral = createScope(
     scope.type = "number";
     scope.value = node.value;
   },
-  ({ scope }) => scope.value
+  ({ scope, mode }) => {
+    switch (mode) {
+      case "type":
+        return scope.type;
+      default:
+        return scope.value;
+    }
+  }
 );
 
 export const TSFunctionType = createScope(
@@ -244,7 +269,8 @@ export const BlockStatement = createScope(
     scope.body = buildScope(getNodesReturn(node.body));
   },
   ({ scope }) => {
-    return scope.body.map(el => el.toString()).join(" | ") || "void";
+    const body = filterUniq(scope.body.map(el => el.toString()));
+    return body.join(" | ") || "void";
   }
 );
 
@@ -252,7 +278,7 @@ export const ReturnStatement = createScope(
   ({ scope, node }) => {
     scope.argument = buildScope(node.argument);
   },
-  ({ scope }) => scope.argument.toString()
+  ({ scope }) => scope.argument.toString("type")
 );
 
 export const AssignmentPattern = createScope(

@@ -11,6 +11,8 @@ test("main", () => {
     const cArFunc3 = async <D, U>(a, b: number, c?: string, d: number = 1) => {
       if (d === 100) return 1;
       else if (d > 200) return b;
+      else if (d > 400) return b;
+      else if (d > 600) return [1, 2, '3'];
       return '2';
     };
     function fName<T, K>(a, b: number, c?: string, d = 1) {
