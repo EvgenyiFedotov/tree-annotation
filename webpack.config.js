@@ -3,6 +3,8 @@ const nodeExternals = require("webpack-node-externals");
 const WebpackBar = require("webpackbar");
 const WebpackShellPlugin = require("webpack-shell-plugin");
 const Package = require("./package.json");
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = {
   entry: {
@@ -13,11 +15,20 @@ module.exports = {
     path: path.resolve(__dirname, "dist"),
     filename: "[name].js"
   },
-  devtool: "sourcemap",
+  // devtool: "sourcemap",
   target: "node",
-  mode: "development",
-  // mode: "production",
+  // mode: "development",
+  mode: "production",
   externals: [nodeExternals()],
+  module: {
+    rules: [
+      {
+        use: "babel-loader",
+        test: /\.js$/,
+        exclude: /node_modules/
+      }
+    ]
+  },
   plugins: [
     new WebpackBar({
       name: Package.name,
@@ -28,5 +39,29 @@ module.exports = {
       // onBuildEnd: ["yarn build:old"],
       dev: false
     })
-  ]
+  ],
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        cache: true,
+        parallel: true,
+        sourceMap: true
+      }),
+      new UglifyJsPlugin({
+        cache: true,
+        parallel: true,
+        uglifyOptions: {
+          compress: {
+            drop_console: true
+          },
+          ecma: 6,
+          mangle: true
+        },
+        sourceMap: true
+      })
+    ],
+    usedExports: true,
+    sideEffects: true
+  }
 };
