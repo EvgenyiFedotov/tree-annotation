@@ -1,4 +1,5 @@
 import * as recast from "recast";
+import * as fs from "fs";
 import { buildScope } from "./build-scope";
 
 /**
@@ -11,4 +12,10 @@ export const parse = (value, options = {}) => {
   const scope = buildScope(nodeFile);
 
   return scope;
+};
+
+export const parseFile = src => {
+  const file = fs.readFileSync(src, "utf8");
+
+  return parse(file);
 };

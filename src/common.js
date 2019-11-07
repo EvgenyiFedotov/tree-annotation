@@ -89,3 +89,12 @@ export const createMemoIds = (memoParent = null) => {
   };
   return { ids, add };
 };
+
+export const scopeAnnotation = scope => {
+  return scope ? scope.annotation() : "";
+};
+
+export const createConifg = (config = {}) => {
+  const { builder = () => {}, annotation = () => "" } = config;
+  return { builder, annotation };
+};
