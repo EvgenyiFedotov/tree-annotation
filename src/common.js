@@ -57,9 +57,35 @@ export const createStack = () => {
   const reset = () => {
     stack.splice(0);
   };
-  return { stack, add, remove, reset };
+  const to = type => {
+    for (let index = stack.length - 1; index >= 0; index -= 1) {
+      const value = stack[index];
+      if (value.originalType === type) return value;
+    }
+  };
+  const prev = value => {
+    const index = stack.indexOf(value);
+    return stack[index - 1] || null;
+  };
+  const next = value => {
+    const index = stack.indexOf(value);
+    return stack[index + 1] || null;
+  };
+  return { stack, add, remove, reset, to, prev, next };
 };
 
 export const filterUniq = (values = []) => {
   return [...new Set(values)];
+};
+
+export const createMemoIds = (memoParent = null) => {
+  const ids = {};
+  const add = scope => {
+    if (scope.originalType === "Identifier") {
+      if (!ids[scope.name]) ids[scope.name] = [];
+      ids[scope.name].push(scope);
+      if (memoParent) memoParent.add(scope);
+    }
+  };
+  return { ids, add };
 };

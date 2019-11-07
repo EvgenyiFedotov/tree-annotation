@@ -1,15 +1,19 @@
 import { buildScope } from ".";
-import { getNodesReturn, createStack, filterUniq } from "../common";
+import * as common from "../common";
 
-const currentScopeStack = createStack();
+const currentScopeStack = common.createStack();
 
 export function createScope(builder = () => {}, toString = () => "") {
   function Scope(node, options = {}) {
     const scope = node ? { originalType: node.type } : {};
+    const stack = currentScopeStack.stack;
+    const parent = stack[stack.length - 1];
+    scope.ids = common.createMemoIds(parent && parent.ids);
     currentScopeStack.add(scope);
     builder({ scope, node, options });
     scope.toString = (mode = null) => toString({ scope, node, options, mode });
     currentScopeStack.remove(scope);
+    delete scope.ids;
     return Object.freeze(scope);
   }
   return (node, options) => new Scope(node, options);
@@ -78,16 +82,20 @@ export const Identifier = createScope(
     scope.name = node.name;
     scope.optional = !!node.optional;
     scope.typeAnnotation = buildScope(node.typeAnnotation);
-
-    const stack = currentScopeStack.stack;
-    console.log(stack[stack.length - 2].originalType, scope.type);
+    scope.ids.add(scope);
   },
-  ({ scope }) => {
-    const name = scope.name;
-    const optional = scope.optional ? "?" : "";
+  ({ scope, mode }) => {
     const typeAnnotationStr = scope.typeAnnotation.toString();
-    const typeAnnotation = typeAnnotationStr && `: ${typeAnnotationStr}`;
-    return `${name}${optional}${typeAnnotation}`;
+
+    switch (mode) {
+      case "type":
+        return typeAnnotationStr;
+      default:
+        const name = scope.name;
+        const optional = scope.optional ? "?" : "";
+        const typeAnnotation = typeAnnotationStr && `: ${typeAnnotationStr}`;
+        return `${name}${optional}${typeAnnotation}`;
+    }
   }
 );
 
@@ -205,7 +213,7 @@ export const ArrayExpression = createScope(
     const elements = scope.elements.map(element => element.toString(mode));
     switch (mode) {
       case "type":
-        return `Array<${filterUniq(elements).join(" | ")}>`;
+        return `Array<${common.filterUniq(elements).join(" | ")}>`;
       default:
         return `[${elements.join(", ")}]`;
     }
@@ -258,27 +266,47 @@ export const ArrowFunctionExpression = createScope(
     const typeParameters = scope.typeParameters.toString();
     const params = scope.params.map(param => param.toString()).join(", ");
     const returnType = scope.returnType.toString();
-    const bodyStr = scope.body.toString();
-    const body = asnc ? `Promise<${bodyStr}>` : bodyStr;
+    const body = scope.body.toString();
     return `${asnc}${typeParameters}(${params}) => ${returnType || body}`;
   }
 );
 
 export const BlockStatement = createScope(
   ({ scope, node }) => {
-    scope.body = buildScope(getNodesReturn(node.body));
+    scope.body = buildScope(common.getNodesReturn(node.body));
+    scope.calcAsync = currentScopeStack.prev(scope).async;
   },
   ({ scope }) => {
-    const body = filterUniq(scope.body.map(el => el.toString()));
-    return body.join(" | ") || "void";
+    let body = common.filterUniq(
+      scope.body.map(el => el.toString()).filter(Boolean)
+    );
+    body = body.join(" | ") || "void";
+    return scope.calcAsync ? `Promise<${body}>` : body;
   }
 );
 
 export const ReturnStatement = createScope(
   ({ scope, node }) => {
     scope.argument = buildScope(node.argument);
+    scope.calcType = "";
+
+    if (scope.argument.originalType === "Identifier") {
+      const scopeBlock = currentScopeStack.to("BlockStatement");
+      const scopeFunc = currentScopeStack.prev(scopeBlock);
+      const scopeIds = scopeFunc.ids.ids[scope.argument.name];
+
+      if (scopeIds) {
+        let scopeIdTypes = scopeIds
+          .map(id => id.toString("type"))
+          .filter(Boolean);
+
+        scope.calcType = common.filterUniq(scopeIdTypes).join(" | ");
+      }
+    }
   },
-  ({ scope }) => scope.argument.toString("type")
+  ({ scope }) => {
+    return scope.argument.toString("type") || scope.calcType;
+  }
 );
 
 export const AssignmentPattern = createScope(
