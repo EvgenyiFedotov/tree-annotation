@@ -1,5 +1,5 @@
-import * as tree from "./index";
-import * as common from "./common";
+import * as tree from "../src/index";
+import * as common from "../src/common";
 
 test("main", () => {
   const value = `
