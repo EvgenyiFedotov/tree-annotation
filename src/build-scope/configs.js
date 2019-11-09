@@ -222,12 +222,11 @@ export const TSFunctionType = common.createConifg({
 
 export const ArrowFunctionExpression = common.createConifg({
   annotation: ({ scope }) => {
-    const asnc = scope.async ? "async " : "";
     const typeParameters = common.scopeAnnotation(scope.typeParameters);
     const params = scope.params.map(param => param.annotation()).join(", ");
     const returnType = common.scopeAnnotation(scope.returnType);
     const body = scope.body.annotation();
-    return `${asnc}${typeParameters}(${params}) => ${returnType || body}`;
+    return `${typeParameters}(${params}) => ${returnType || body}`;
   }
 });
 
@@ -241,4 +240,14 @@ export const AssignmentPattern = common.createConifg({
 
 export const NewExpression = common.createConifg({
   annotation: ({ scope }) => scope.callee.annotation()
+});
+
+export const FunctionDeclaration = common.createConifg({
+  annotation: ({ scope }) => {
+    const type = "function";
+    const id = scope.id.annotation();
+    const init = ArrowFunctionExpression.annotation({ scope });
+    console.log(scope.leadingComments);
+    return `${type} ${id} ${init}`;
+  }
 });

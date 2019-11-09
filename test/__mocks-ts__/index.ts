@@ -1,3 +1,4 @@
+// tName is good type
 type tName<T, K extends String, D = string> = "2";
 
 const cName: Array<number | string> = [1, 2, 3] as Array<number | string>;
@@ -22,6 +23,15 @@ const cArFunc3 = async <D, U>(a, b: string, c?: string, d: number = 1) => {
   return "2";
 };
 
+/**
+ * @paramtype T it is type generation
+ * @paramtype K it is type generation
+ *
+ * @param a
+ * @param b
+ * @param c
+ * @param d
+ */
 function fName<T, K>(a, b: number, c?: string, d = 1) {
   return Promise.resolve(1);
 }

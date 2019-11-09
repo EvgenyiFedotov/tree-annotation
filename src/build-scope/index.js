@@ -34,6 +34,8 @@ export const createScope = node => {
       case "loc":
       case "tokens":
       case "type":
+      case "start":
+      case "end":
         break;
       default:
         const prop = node[propName];

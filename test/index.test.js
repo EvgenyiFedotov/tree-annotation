@@ -6,5 +6,5 @@ test("main", () => {
   const body = common.getFileProgBody(result);
 
   body.forEach(el => console.log(el.annotation() || "unknow"));
-  // console.log(body[body.length - 1].toString());
+  // console.log(body[body.length - 1]);
 });
