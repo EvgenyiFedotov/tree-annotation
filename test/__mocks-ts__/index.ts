@@ -44,3 +44,18 @@ enum testEnum {
   CONVERT = -100,
   CLEAR = "clear"
 }
+
+/**
+ * @paramtype a it is type parameter interface
+ * @paramtype b it is type parameter interface
+ * @paramtype c it is type parameter interface
+ * @paramtype d it is type parameter interface
+ * @paramtype g it is type parameter interface
+ */
+interface testInterface<T, K = Array<string>> {
+  a: T;
+  b: string;
+  c?: number;
+  d?: K;
+  g;
+}

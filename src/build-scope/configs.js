@@ -265,7 +265,6 @@ export const TSEnumMember = common.createConifg({
     const id = scope.id.annotation();
     const initializerAnn = common.scopeAnnotation(scope.initializer);
     const initializer = initializerAnn && ` = ${initializerAnn}`;
-    console.log(scope.initializer);
     return `${id}${initializer}`;
   }
 });
@@ -275,5 +274,32 @@ export const UnaryExpression = common.createConifg({
     const operator = scope.operator;
     const argument = scope.argument.annotation();
     return `${operator}${argument}`;
+  }
+});
+
+export const TSInterfaceDeclaration = common.createConifg({
+  annotation: ({ scope }) => {
+    const id = scope.id.annotation();
+    const typeParameters = scope.typeParameters.annotation();
+    const bodyAnn = scope.body.annotation();
+    const body = bodyAnn ? ` ${bodyAnn} ` : " ";
+    return `interface ${id}${typeParameters} {${body}}`;
+  }
+});
+
+export const TSInterfaceBody = common.createConifg({
+  annotation: ({ scope }) => {
+    const body = scope.body.map(el => el.annotation()).join(", ");
+    return body;
+  }
+});
+
+export const TSPropertySignature = common.createConifg({
+  annotation: ({ scope }) => {
+    const key = scope.key.annotation();
+    const optional = scope.optional ? "?" : "";
+    const typeAnnotation =
+      common.scopeAnnotation(scope.typeAnnotation) || "any";
+    return `${key}${optional}: ${typeAnnotation}`;
   }
 });
