@@ -56,7 +56,7 @@ export const StringLiteral = common.createConifg({
       case "type":
         return scope.type;
       default:
-        return scope.value;
+        return `'${scope.value}'`;
     }
   }
 });
@@ -247,7 +247,33 @@ export const FunctionDeclaration = common.createConifg({
     const type = "function";
     const id = scope.id.annotation();
     const init = ArrowFunctionExpression.annotation({ scope });
-    console.log(scope.leadingComments);
     return `${type} ${id} ${init}`;
+  }
+});
+
+export const TSEnumDeclaration = common.createConifg({
+  annotation: ({ scope }) => {
+    const type = "enum";
+    const id = scope.id.annotation();
+    const members = scope.members.map(member => member.annotation()).join(", ");
+    return `${type} ${id} { ${members} }`;
+  }
+});
+
+export const TSEnumMember = common.createConifg({
+  annotation: ({ scope }) => {
+    const id = scope.id.annotation();
+    const initializerAnn = common.scopeAnnotation(scope.initializer);
+    const initializer = initializerAnn && ` = ${initializerAnn}`;
+    console.log(scope.initializer);
+    return `${id}${initializer}`;
+  }
+});
+
+export const UnaryExpression = common.createConifg({
+  annotation: ({ scope }) => {
+    const operator = scope.operator;
+    const argument = scope.argument.annotation();
+    return `${operator}${argument}`;
   }
 });

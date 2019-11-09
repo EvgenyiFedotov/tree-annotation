@@ -35,3 +35,12 @@ const cArFunc3 = async <D, U>(a, b: string, c?: string, d: number = 1) => {
 function fName<T, K>(a, b: number, c?: string, d = 1) {
   return Promise.resolve(1);
 }
+
+enum testEnum {
+  SHOW,
+  HIDE,
+  ADD,
+  REMOVE,
+  CONVERT = -100,
+  CLEAR = "clear"
+}
