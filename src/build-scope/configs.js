@@ -382,3 +382,15 @@ export const ImportSpecifier = common.createConifg({
     return imported === local ? imported : `${imported} as ${local}`;
   }
 });
+
+export const Program = common.createConifg({
+  annotation: ({ scope }) => {
+    return common.scopesAnnotation(scope.body).join("\n");
+  }
+});
+
+export const File = common.createConifg({
+  annotation: ({ scope }) => {
+    return scope.program.annotation();
+  }
+});
