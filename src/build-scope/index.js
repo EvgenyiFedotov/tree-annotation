@@ -1,7 +1,7 @@
 import * as common from "../common";
 import * as configs from "./configs";
 
-const currentScopeStack = common.createStack();
+const scopeStack = common.createStack();
 
 export const buildScope = value => {
   if (value instanceof Array) {
@@ -19,12 +19,12 @@ export const createScope = node => {
   const scope = node ? { originalType } : {};
 
   // use context
-  const stack = currentScopeStack.stack;
+  const stack = scopeStack.stack;
   const parent = stack[stack.length - 1];
 
   // add scope to context and create memo ids
   scope.ids = common.createMemoIds(parent && parent.ids);
-  currentScopeStack.add(scope);
+  scopeStack.add(scope);
 
   // build
   const propNames = Object.keys(node);
@@ -54,14 +54,14 @@ export const createScope = node => {
   const scopeConfig = configs[originalType] || common.createConifg();
 
   // use builder
-  scopeConfig.builder({ scope, node, currentScopeStack });
+  scopeConfig.builder({ scope, node, scopeStack });
 
   // added methods
   scope.annotation = mode => {
     return scopeConfig.annotation({ scope, node, mode });
   };
 
-  currentScopeStack.remove(scope);
+  scopeStack.remove(scope);
   delete scope.ids;
 
   return Object.freeze(scope);

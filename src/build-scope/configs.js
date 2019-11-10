@@ -102,9 +102,9 @@ export const Identifier = common.createConifg({
 });
 
 export const BlockStatement = common.createConifg({
-  builder: ({ scope, node, currentScopeStack }) => {
+  builder: ({ scope, node, scopeStack }) => {
     scope.body = buildScope(common.getNodesReturn(node.body));
-    scope.calcAsync = currentScopeStack.prev(scope).async;
+    scope.calcAsync = scopeStack.prev(scope).async;
   },
   annotation: ({ scope }) => {
     let body = common.filterUniq(
@@ -116,12 +116,12 @@ export const BlockStatement = common.createConifg({
 });
 
 export const ReturnStatement = common.createConifg({
-  builder: ({ scope, currentScopeStack }) => {
+  builder: ({ scope, scopeStack }) => {
     scope.calcType = "";
 
     if (scope.argument.originalType === "Identifier") {
-      const scopeBlock = currentScopeStack.to("BlockStatement");
-      const scopeFunc = currentScopeStack.prev(scopeBlock);
+      const scopeBlock = scopeStack.to("BlockStatement");
+      const scopeFunc = scopeStack.prev(scopeBlock);
       const scopeIds = scopeFunc.ids.ids[scope.argument.name];
 
       if (scopeIds) {
