@@ -69,3 +69,7 @@ export default () => {
 };
 
 export { ExpClass1 } from "./export";
+
+import testimport from "./export";
+
+import { ExpClass1, ExpConst1, ExpFunc1 as MainFunc } from "./export";

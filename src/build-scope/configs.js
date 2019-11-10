@@ -349,3 +349,36 @@ export const ExportDefaultDeclaration = common.createConifg({
     return `export ${declaration}`;
   }
 });
+
+export const ImportDeclaration = common.createConifg({
+  annotation: ({ scope }) => {
+    const specifiersByOrType = common.groupByOriginalType(scope.specifiers);
+    const def = specifiersByOrType.ImportDefaultSpecifier
+      ? common.scopeAnnotation(specifiersByOrType.ImportDefaultSpecifier[0])
+      : null;
+    const impAnn = common
+      .scopesAnnotation(specifiersByOrType.ImportSpecifier)
+      .join(", ");
+    const imp = impAnn.length ? `{ ${impAnn} }` : "";
+    const specifiers = [def, imp].filter(Boolean).join(", ");
+
+    // .map(specifier => specifier.annotation())
+    // .join(", ");
+    const source = scope.source.annotation();
+    return `import ${specifiers} from ${source}`;
+  }
+});
+
+export const ImportDefaultSpecifier = common.createConifg({
+  annotation: ({ scope }) => {
+    return scope.local.annotation();
+  }
+});
+
+export const ImportSpecifier = common.createConifg({
+  annotation: ({ scope }) => {
+    const imported = common.scopeAnnotation(scope.imported);
+    const local = common.scopeAnnotation(scope.local);
+    return imported === local ? imported : `${imported} as ${local}`;
+  }
+});

@@ -94,7 +94,22 @@ export const scopeAnnotation = scope => {
   return scope ? scope.annotation() : "";
 };
 
+export const scopesAnnotation = (scopes = []) => {
+  return scopes.map(scopeAnnotation).filter(Boolean);
+};
+
 export const createConifg = (config = {}) => {
   const { builder = () => {}, annotation = () => "" } = config;
   return { builder, annotation };
+};
+
+export const groupByOriginalType = (scopes = []) => {
+  return scopes.reduce((memo, scope) => {
+    const { originalType } = scope;
+
+    if (!memo[originalType]) memo[originalType] = [];
+    memo[originalType].push(scope);
+
+    return memo;
+  }, {});
 };
