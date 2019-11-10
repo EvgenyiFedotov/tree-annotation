@@ -303,3 +303,49 @@ export const TSPropertySignature = common.createConifg({
     return `${key}${optional}: ${typeAnnotation}`;
   }
 });
+
+export const ExportNamedDeclaration = common.createConifg({
+  builder: ({ scope }) => {
+    scope.annotationInit = () => {
+      let result = "";
+
+      if (scope.declaration) {
+        result = common.scopeAnnotation(scope.declaration);
+      } else if (scope.specifiers) {
+        result = scope.specifiers
+          .map(spec => common.scopeAnnotation(spec))
+          .join(", ");
+        result = result ? `{ ${result} }` : "{ }";
+      }
+
+      const sourceAnn = common.scopeAnnotation(scope.source);
+      const source = sourceAnn ? ` from ${sourceAnn}` : "";
+
+      return `${result}${source}`;
+    };
+  },
+  annotation: ({ scope }) => {
+    const type = "export";
+    let annotationInit = scope.annotationInit();
+    return `${type} ${annotationInit}`;
+  }
+});
+
+export const TSAnyKeyword = common.createConifg({
+  annotation: () => "any"
+});
+
+export const ExportSpecifier = common.createConifg({
+  annotation: ({ scope }) => {
+    const local = scope.local.annotation();
+    const exported = scope.exported.annotation();
+    return local === exported ? local : `${local} as ${exported}`;
+  }
+});
+
+export const ExportDefaultDeclaration = common.createConifg({
+  annotation: ({ scope }) => {
+    const declaration = scope.declaration.annotation();
+    return `export ${declaration}`;
+  }
+});

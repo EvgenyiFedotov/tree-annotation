@@ -59,3 +59,13 @@ interface testInterface<T, K = Array<string>> {
   d?: K;
   g;
 }
+
+export const expConst: number = 1 as any;
+
+export { testEnum as TEST_ENUM, testInterface };
+
+export default () => {
+  return "1";
+};
+
+export { ExpClass1 } from "./export";

@@ -15,7 +15,7 @@ export const buildScope = value => {
 };
 
 export const createScope = node => {
-  const originalType = node.type;
+  const originalType = node && node.type;
   const scope = node ? { originalType } : {};
 
   // use context
@@ -36,6 +36,8 @@ export const createScope = node => {
       case "type":
       case "start":
       case "end":
+      case "trailingComments":
+      case "comments":
         break;
       default:
         const prop = node[propName];
