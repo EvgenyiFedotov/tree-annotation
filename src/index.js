@@ -4,7 +4,7 @@ import { buildScope } from "./build-scope";
 
 /**
  * @param {string} value
- * @param {{ toAreaType?: boolean }} options
+ * @param {{ }} options
  */
 export const parse = (value, options = {}) => {
   const { parser = require("recast/parsers/typescript") } = options;

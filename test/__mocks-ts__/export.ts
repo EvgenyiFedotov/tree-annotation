@@ -26,3 +26,14 @@ export default {
   a: 1,
   b: "2"
 };
+
+export type TestType1 = Array<string>;
+export enum TestEnum {
+  START,
+  STOP
+}
+export interface TestInterface1 {
+  a: string;
+  b: number;
+  action: TestEnum;
+}

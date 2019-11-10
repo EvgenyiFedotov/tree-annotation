@@ -1,3 +1,14 @@
+import testimport from "./export";
+
+import {
+  ExpClass1,
+  ExpConst1,
+  ExpFunc1 as MainFunc,
+  TestType1,
+  TestInterface1,
+  TestEnum
+} from "./export";
+
 // tName is good type
 type tName<T, K extends String, D = string> = "2";
 
@@ -70,6 +81,10 @@ export default () => {
 
 export { ExpClass1 } from "./export";
 
-import testimport from "./export";
+export const CTest1: TestType1 = ["1"];
 
-import { ExpClass1, ExpConst1, ExpFunc1 as MainFunc } from "./export";
+export const CTest2: TestInterface1 = {
+  a: "1",
+  b: 2,
+  action: TestEnum.START
+};

@@ -362,8 +362,6 @@ export const ImportDeclaration = common.createConifg({
     const imp = impAnn.length ? `{ ${impAnn} }` : "";
     const specifiers = [def, imp].filter(Boolean).join(", ");
 
-    // .map(specifier => specifier.annotation())
-    // .join(", ");
     const source = scope.source.annotation();
     return `import ${specifiers} from ${source}`;
   }
@@ -392,5 +390,28 @@ export const Program = common.createConifg({
 export const File = common.createConifg({
   annotation: ({ scope }) => {
     return scope.program.annotation();
+  }
+});
+
+export const ObjectExpression = common.createConifg({
+  annotation: ({ scope }) => {
+    const properties = common.scopesAnnotation(scope.properties).join(", ");
+    return properties ? `{ ${properties} }` : "{ }";
+  }
+});
+
+export const ObjectProperty = common.createConifg({
+  annotation: ({ scope }) => {
+    const key = scope.key.annotation();
+    const value = scope.value.annotation();
+    return `${key}: ${value}`;
+  }
+});
+
+export const MemberExpression = common.createConifg({
+  annotation: ({ scope }) => {
+    const object = scope.object.annotation();
+    const property = scope.property.annotation();
+    return `${object}.${property}`;
   }
 });
