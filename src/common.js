@@ -71,7 +71,10 @@ export const createStack = () => {
     const index = stack.indexOf(value);
     return stack[index + 1] || null;
   };
-  return { stack, add, remove, reset, to, prev, next };
+  const last = () => {
+    return stack[stack.length - 1];
+  };
+  return { stack, add, remove, reset, to, prev, next, last };
 };
 
 export const filterUniq = (values = []) => {
