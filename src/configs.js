@@ -1,5 +1,4 @@
-import * as common from "../common";
-import { buildScope } from ".";
+import * as common from "./common";
 
 export const TSTypeAliasDeclaration = common.createConifg({
   builder: ({ scope }) => {
@@ -83,8 +82,8 @@ export const NumericLiteral = common.createConifg({
 });
 
 export const Identifier = common.createConifg({
-  builder: ({ scope }) => {
-    scope.ids.add(scope);
+  builder: ({ scope, stack }) => {
+    stack.last().identifiers.add(scope.name, scope);
   },
   annotation: ({ scope, mode }) => {
     const typeAnnotationStr = common.scopeAnnotation(scope.typeAnnotation);
@@ -102,39 +101,40 @@ export const Identifier = common.createConifg({
 });
 
 export const BlockStatement = common.createConifg({
-  builder: ({ scope, node, scopeStack }) => {
-    scope.body = buildScope(common.getNodesReturn(node.body));
-    scope.calcAsync = scopeStack.prev(scope).async;
+  builder: ({ scope, node, stack }, { buildScope }) => {
+    scope.bodyReturn = buildScope(common.getNodesReturn(node.body));
+    scope.calcAsync = stack.prev().scope.async;
   },
   annotation: ({ scope }) => {
-    let body = common.filterUniq(
-      scope.body.map(el => el.annotation()).filter(Boolean)
+    let bodyReturn = common.filterUniq(
+      scope.bodyReturn.map(el => el.annotation()).filter(Boolean)
     );
-    body = body.join(" | ") || "void";
-    return scope.calcAsync ? `Promise<${body}>` : body;
+    bodyReturn = bodyReturn.join(" | ") || "void";
+    return scope.calcAsync ? `Promise<${bodyReturn}>` : bodyReturn;
   }
 });
 
 export const ReturnStatement = common.createConifg({
-  builder: ({ scope, scopeStack }) => {
+  builder: ({ scope, stack }) => {
     scope.calcType = "";
 
     if (scope.argument.originalType === "Identifier") {
-      const scopeBlock = scopeStack.to("BlockStatement");
-      const scopeFunc = scopeStack.prev(scopeBlock);
-      const scopeIds = scopeFunc.ids.ids[scope.argument.name];
+      const stateFunc = stack.prev(
+        stack.to(({ scope }) => scope.originalType === "BlockStatement")
+      );
+      const identifiers = stateFunc.identifiers.get(scope.argument.name);
 
-      if (scopeIds) {
-        let scopeIdTypes = scopeIds
-          .map(id => id.annotation("type"))
+      if (identifiers) {
+        let identifiersTypes = identifiers
+          .map(id => id.annotation({ mode: "type" }))
           .filter(Boolean);
 
-        scope.calcType = common.filterUniq(scopeIdTypes).join(" | ");
+        scope.calcType = common.filterUniq(identifiersTypes).join(" | ");
       }
     }
   },
   annotation: ({ scope }) => {
-    return scope.argument.annotation("type") || scope.calcType;
+    return scope.argument.annotation({ mode: "type" }) || scope.calcType;
   }
 });
 
@@ -199,7 +199,9 @@ export const TSUnionType = common.createConifg({
 
 export const ArrayExpression = common.createConifg({
   annotation: ({ scope, mode }) => {
-    const elements = scope.elements.map(element => element.annotation(mode));
+    const elements = scope.elements.map(element =>
+      element.annotation({ mode })
+    );
     switch (mode) {
       case "type":
         return `Array<${common.filterUniq(elements).join(" | ")}>`;

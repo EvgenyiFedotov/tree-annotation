@@ -1,6 +1,6 @@
 import * as recast from "recast";
 import * as fs from "fs";
-import { buildScope } from "./build-scope";
+import { createScope } from "./scope";
 
 /**
  * @param {string} value
@@ -9,7 +9,7 @@ import { buildScope } from "./build-scope";
 export const parse = (value, options = {}) => {
   const { parser = require("recast/parsers/typescript") } = options;
   const nodeFile = recast.parse(value, { parser });
-  const scope = buildScope(nodeFile);
+  const scope = createScope(nodeFile);
 
   return scope;
 };
