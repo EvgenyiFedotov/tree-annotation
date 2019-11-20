@@ -8,37 +8,46 @@ const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = {
   entry: {
-    index: "./src/index.js"
+    index: "./src/index.ts",
   },
   output: {
     libraryTarget: "commonjs2",
     path: path.resolve(__dirname, "dist"),
-    filename: "[name].js"
+    filename: "[name].js",
   },
   // devtool: "sourcemap",
   target: "node",
   // mode: "development",
   mode: "production",
   externals: [nodeExternals()],
+  resolve: {
+    modules: ["node_modules", path.resolve(__dirname, "src")],
+    extensions: [".js", ".ts", ".json"],
+  },
   module: {
     rules: [
       {
-        use: "babel-loader",
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
+        use: ["babel-loader", "ts-loader"],
+      },
+      {
         test: /\.js$/,
-        exclude: /node_modules/
-      }
-    ]
+        exclude: /node_modules/,
+        loader: "babel-loader",
+      },
+    ],
   },
   plugins: [
     new WebpackBar({
       name: Package.name,
-      profile: true
+      profile: true,
     }),
     new WebpackShellPlugin({
       // onBuildStart: ["yarn test"],
       // onBuildEnd: ["yarn build:old"],
-      dev: false
-    })
+      dev: false,
+    }),
   ],
   optimization: {
     minimize: true,
@@ -46,22 +55,22 @@ module.exports = {
       new TerserPlugin({
         cache: true,
         parallel: true,
-        sourceMap: true
+        sourceMap: true,
       }),
       new UglifyJsPlugin({
         cache: true,
         parallel: true,
         uglifyOptions: {
           compress: {
-            drop_console: true
+            drop_console: true,
           },
           ecma: 6,
-          mangle: true
+          mangle: true,
         },
-        sourceMap: true
-      })
+        sourceMap: true,
+      }),
     ],
     usedExports: true,
-    sideEffects: true
-  }
+    sideEffects: true,
+  },
 };
