@@ -2,34 +2,39 @@ import * as scope from "./scope";
 import * as common from "./common";
 import { Stack } from "./stack";
 
-type ConfigOptionsBuild = (
+type Build = (
   ...args: [
     {
-      scope: scope.Scope;
-      node: common.Node;
       state: scope.State;
       stack: Stack<scope.State>;
     },
   ]
-) => void;
+) => { [propName: string]: any };
 
-type ConfigOptionsAnnotation = (arg0: {
+type Annotation = (arg0: {
   scope: scope.Scope;
   mode: scope.AnnotationMode;
 }) => string;
 
 interface ConfigOptions {
-  build?: ConfigOptionsBuild;
-  annotation?: ConfigOptionsAnnotation;
+  build?: Build;
+  annotation?: Annotation;
 }
 
 export interface Config {
-  build: ConfigOptionsBuild;
-  annotation: ConfigOptionsAnnotation;
+  build: Build;
+  annotation: Annotation;
 }
 
 export const createConifg = (options: ConfigOptions = {}): Config => {
-  const { build = () => {}, annotation = () => "" } = options;
+  const {
+    build = () => ({}),
+    annotation = ({ scope }: { scope: scope.Scope }) => {
+      console.log(`Annotaion doesn't exist ${scope.originalType}`);
+
+      return "";
+    },
+  } = options;
 
   return { build, annotation };
 };

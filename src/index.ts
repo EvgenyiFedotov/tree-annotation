@@ -4,8 +4,8 @@ import * as fs from "fs";
 import { createScope, Scope } from "./scope";
 import * as common from "./common";
 
-export const parse = (): Scope => {
-  const nodeRoot = recast.parse("var r = 1;", {
+export const parse = (value: string): Scope => {
+  const nodeRoot = recast.parse(value, {
     parser: require("recast/parsers/typescript"),
   }) as common.Node;
   const scope = createScope(nodeRoot);
@@ -14,5 +14,7 @@ export const parse = (): Scope => {
 };
 
 export const parseFile = (url: string): Scope => {
-  return parse();
+  const file = fs.readFileSync(url, "utf8");
+
+  return parse(file);
 };
